@@ -1,0 +1,902 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Portfolio</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Space+Grotesk:wght@400;500;600;700&family=Inter:wght@400;500;600&display=swap" rel="stylesheet">
+
+<style>
+
+/* ============ TOKENS ============ */
+:root {
+    --deep:       #0a0f2b;
+    --deep-2:     #161a45;
+    --dusk:       #3c2c58;
+    --ember:      #ffb454;
+    --rose:       #ff8fa3;
+    --cyan:       #7dd3fc;
+    --ink:        #f3efe6;
+    --ink-muted:  #b6bce0;
+    --glass:      rgba(18, 22, 54, 0.55);
+    --glass-soft: rgba(255,255,255,0.06);
+    --glass-line: rgba(255,255,255,0.14);
+}
+
+/* ============ RESET ============ */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Inter', sans-serif;
+    scroll-behavior: smooth;
+}
+
+h1, h2, h3, .section-title, .navbar a {
+    font-family: 'Space Grotesk', sans-serif;
+}
+
+/* ============ NIGHT SKY BACKGROUND ============ */
+body {
+    background: linear-gradient(180deg, #050816 0%, #0a0f2b 40%, #161a45 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    color: var(--ink);
+}
+
+/* clustered city-light dots, organically grouped rather than evenly scattered */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        radial-gradient(1.5px 1.5px at 8% 22%,  rgba(255,255,255,0.9), transparent),
+        radial-gradient(1.5px 1.5px at 11% 25%, rgba(255,180,84,0.8), transparent),
+        radial-gradient(1.2px 1.2px at 14% 19%, rgba(255,255,255,0.7), transparent),
+        radial-gradient(1.3px 1.3px at 9% 30%,  rgba(255,180,84,0.7), transparent),
+        radial-gradient(1.6px 1.6px at 17% 26%, rgba(255,255,255,0.8), transparent),
+
+        radial-gradient(1.6px 1.6px at 62% 12%, rgba(255,255,255,0.85), transparent),
+        radial-gradient(1.3px 1.3px at 65% 15%, rgba(255,143,163,0.8), transparent),
+        radial-gradient(1.2px 1.2px at 59% 9%,  rgba(255,255,255,0.6), transparent),
+        radial-gradient(1.5px 1.5px at 68% 18%, rgba(255,180,84,0.7), transparent),
+
+        radial-gradient(1.5px 1.5px at 82% 62%, rgba(255,255,255,0.9), transparent),
+        radial-gradient(1.3px 1.3px at 86% 66%, rgba(125,211,252,0.7), transparent),
+        radial-gradient(1.2px 1.2px at 79% 58%, rgba(255,255,255,0.6), transparent),
+        radial-gradient(1.6px 1.6px at 90% 70%, rgba(255,180,84,0.7), transparent),
+        radial-gradient(1.4px 1.4px at 84% 55%, rgba(255,255,255,0.7), transparent),
+
+        radial-gradient(1.4px 1.4px at 35% 78%, rgba(255,255,255,0.8), transparent),
+        radial-gradient(1.2px 1.2px at 39% 82%, rgba(255,143,163,0.7), transparent),
+        radial-gradient(1.5px 1.5px at 31% 75%, rgba(255,255,255,0.6), transparent),
+
+        radial-gradient(1.2px 1.2px at 48% 40%, rgba(255,255,255,0.55), transparent),
+        radial-gradient(1.2px 1.2px at 25% 50%, rgba(255,255,255,0.5), transparent),
+        radial-gradient(1.2px 1.2px at 72% 40%, rgba(255,255,255,0.5), transparent);
+    background-repeat: no-repeat;
+}
+/* 🌌 Milky Way glowing band */
+.milky-way {
+    position: fixed;
+    top: 20%;
+    left: -10%;
+    width: 120%;
+    height: 300px;
+    z-index: 0;
+    pointer-events: none;
+
+    background: linear-gradient(
+        110deg,
+        transparent 0%,
+        rgba(125,211,252,0.08) 20%,
+        rgba(255,143,163,0.12) 40%,
+        rgba(255,180,84,0.15) 50%,
+        rgba(255,143,163,0.12) 60%,
+        rgba(125,211,252,0.08) 80%,
+        transparent 100%
+    );
+
+    filter: blur(60px);
+    opacity: 0.7;
+    transform: rotate(-12deg);
+    animation: milkyDrift 40s ease-in-out infinite alternate;
+}
+.lights-flicker {
+    position: fixed;
+    inset: 0;
+    z-index: 0;
+    pointer-events: none;
+    animation: flicker 5s ease-in-out infinite alternate;
+}
+@keyframes milkyDrift {
+    0% {
+        transform: rotate(-12deg) translateY(0px);
+    }
+    100% {
+        transform: rotate(-12deg) translateY(-40px);
+    }
+}
+
+/* soft horizon glows behind the light clusters */
+.bg-glow {
+    position: fixed;
+    z-index: 0;
+    border-radius: 50%;
+    filter: blur(120px);
+    pointer-events: none;
+}
+.bg-glow.amber { width: 380px; height: 380px; top: 8%;  left: 4%;  background: rgba(255,180,84,0.22); animation: floatBlob 18s ease-in-out infinite; }
+.bg-glow.rose  { width: 340px; height: 340px; top: -60px; right: 8%; background: rgba(255,143,163,0.20); animation: floatBlob 22s ease-in-out infinite reverse; }
+.bg-glow.cyan  { width: 360px; height: 360px; bottom: -80px; right: 15%; background: rgba(125,211,252,0.16); animation: floatBlob 20s ease-in-out infinite; }
+
+@keyframes floatBlob {
+    0%, 100% { transform: translate(0, 0); }
+    50%      { transform: translate(24px, -20px); }
+}
+
+/* one deliberate load moment: a scan line sweeping down once, like a satellite pass */
+.scan-line {
+    position: fixed;
+    left: 0; right: 0;
+    top: 0;
+    height: 2px;
+    background: linear-gradient(90deg, transparent, rgba(255,180,84,0.9), rgba(125,211,252,0.7), transparent);
+    box-shadow: 0 0 20px rgba(255,180,84,0.6);
+    z-index: 5;
+    pointer-events: none;
+    animation: sweep 2.4s ease-in-out 1;
+}
+@keyframes sweep {
+    0%   { top: 0%;   opacity: 0; }
+    8%   { opacity: 1; }
+    92%  { opacity: 1; }
+    100% { top: 100%; opacity: 0; }
+}
+
+/* 🛰️ Left-side milky way / remote sensing themed backdrop
+   Sits behind the page-wrapper, concentrated on the left margin of the
+   main background so it reads clearly beside the centered content box. */
+.cosmic-left {
+    position: fixed;
+    top: 0;
+    left: 0;
+    width: 42%;
+    min-width: 260px;
+    height: 100%;
+    z-index: 0;
+    pointer-events: none;
+    opacity: 0.95;
+    background:
+        radial-gradient(ellipse 60% 40% at 15% 22%, rgba(125,211,252,0.20), transparent 60%),
+        radial-gradient(ellipse 50% 35% at 24% 55%, rgba(255,143,163,0.15), transparent 60%),
+        radial-gradient(ellipse 55% 45% at 10% 80%, rgba(255,180,84,0.12), transparent 65%),
+        repeating-linear-gradient(0deg,  rgba(125,211,252,0.06) 0px, rgba(125,211,252,0.06) 1px, transparent 1px, transparent 46px),
+        repeating-linear-gradient(90deg, rgba(125,211,252,0.06) 0px, rgba(125,211,252,0.06) 1px, transparent 1px, transparent 46px);
+    -webkit-mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 55%, transparent 100%);
+    mask-image: linear-gradient(90deg, rgba(0,0,0,1) 0%, rgba(0,0,0,0.8) 55%, transparent 100%);
+    animation: cosmicDrift 50s ease-in-out infinite alternate;
+}
+
+/* dense little starfield cluster, like a Milky Way arm, hugging the left edge */
+.cosmic-left::before {
+    content: '';
+    position: absolute;
+    inset: 0;
+    background-image:
+        radial-gradient(1.4px 1.4px at 5% 10%,  #fff, transparent),
+        radial-gradient(1.2px 1.2px at 12% 16%, rgba(125,211,252,0.9), transparent),
+        radial-gradient(1.6px 1.6px at 4% 28%,  #fff, transparent),
+        radial-gradient(1.3px 1.3px at 19% 34%, rgba(255,180,84,0.85), transparent),
+        radial-gradient(1.4px 1.4px at 8% 46%,  #fff, transparent),
+        radial-gradient(1.2px 1.2px at 21% 53%, rgba(255,143,163,0.8), transparent),
+        radial-gradient(1.5px 1.5px at 6% 63%,  #fff, transparent),
+        radial-gradient(1.3px 1.3px at 16% 71%, rgba(125,211,252,0.75), transparent),
+        radial-gradient(1.4px 1.4px at 3% 82%,  #fff, transparent),
+        radial-gradient(1.2px 1.2px at 14% 90%, rgba(255,180,84,0.7), transparent);
+    background-repeat: no-repeat;
+}
+
+/* satellite orbit ring - a nod to remote sensing, half-visible off the edge */
+.cosmic-left::after {
+    content: '';
+    position: absolute;
+    left: -70px;
+    top: 36%;
+    width: 260px;
+    height: 260px;
+    border-radius: 50%;
+    border: 1px dashed rgba(125,211,252,0.30);
+}
+
+@keyframes cosmicDrift {
+    0%   { transform: translateY(0px) scale(1); }
+    100% { transform: translateY(-26px) scale(1.03); }
+}
+
+@media (max-width: 900px) {
+    .cosmic-left { opacity: 0.5; }
+}
+
+/* ============ PAGE WRAPPER ============ */
+.page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1300px;
+    margin: 50px auto;
+    background: linear-gradient(160deg,
+        rgba(66, 46, 96, 0.55) 0%,
+        rgba(42, 33, 82, 0.48) 42%,
+        rgba(16, 20, 52, 0.42) 100%);
+    backdrop-filter: blur(18px);
+    -webkit-backdrop-filter: blur(18px);
+    border-radius: 28px;
+    padding: 30px 40px 50px 40px;
+    border: 1px solid rgba(255,255,255,0.18);
+    box-shadow: 
+    0 30px 70px rgba(0,0,0,0.6),
+    0 0 80px rgba(124,72,158,0.16),
+    0 0 40px rgba(255,180,84,0.07);
+}
+
+/* ============ NAVBAR ============ */
+.navbar {
+    position: sticky;
+    top: 20px;
+    z-index: 4;
+    background: rgba(10, 14, 40, 0.6);
+    backdrop-filter: blur(12px);
+    padding: 15px;
+    text-align: center;
+    border-radius: 999px;
+    border: 1px solid var(--glass-line);
+}
+
+.navbar a {
+    margin: 0 20px;
+    text-decoration: none;
+    color: var(--ink-muted);
+    font-weight: 500;
+    font-size: 15px;
+    letter-spacing: 0.2px;
+    transition: color 0.3s;
+}
+
+.navbar a:hover {
+    color: var(--ember);
+}
+
+/* ============ CONTAINER ============ */
+.container {
+    width: 100%;
+    margin: auto;
+    padding: 40px 0 0 0;
+}
+
+/* ============ MAIN PROFILE CARD ============ */
+.main-profile {
+    display: flex;
+    align-items: center;
+    gap: 34px;
+    background: var(--glass-soft);
+    border-radius: 24px;
+    padding: 32px;
+    border: 1px solid var(--glass-line);
+    transition: 0.4s;
+}
+
+.main-profile:hover {
+    transform: translateY(-6px);
+    box-shadow: 0 25px 50px rgba(0,0,0,0.35);
+}
+
+.profile-photo-wrap {
+    position: relative;
+    width: 150px;
+    height: 150px;
+    flex-shrink: 0;
+}
+
+/* orbit ring around the profile photo - the signature moment */
+.profile-photo-wrap::before {
+    content: '';
+    position: absolute;
+    inset: -14px;
+    border-radius: 50%;
+    border: 1px dashed rgba(255,180,84,0.45);
+    animation: orbitSpin 14s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+
+.profile-photo-wrap::after {
+    content: '';
+    position: absolute;
+    top: -14px;
+    left: 50%;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 10px 3px rgba(255,180,84,0.7);
+    transform-origin: 3.5px 89px;
+    animation: orbitSpin 14s linear infinite;
+    opacity: 0;
+    transition: opacity 0.4s ease;
+}
+.profile-photo-wrap:hover::before,
+.profile-photo-wrap:hover::after {
+    opacity: 1;
+}
+
+@keyframes orbitSpin {
+    from { transform: rotate(0deg); }
+    to   { transform: rotate(360deg); }
+}
+
+.main-profile img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid var(--ember);
+    box-shadow: 0 4px 25px rgba(0,0,0,0.4);
+    position: relative;
+    z-index: 1;
+}
+
+.main-profile h1 {
+    margin: 0;
+    font-size: 32px;
+    font-weight: 700;
+    color: var(--ink);
+}
+
+.main-profile h3 {
+    margin: 6px 0 14px 0;
+    font-weight: 500;
+    color: var(--ember) !important;
+}
+
+.main-profile p {
+    color: var(--ink-muted);
+    line-height: 1.6;
+}
+
+/* ============ SECTION TITLE ============ */
+.section-title {
+    font-size: 24px;
+    margin-top: 55px;
+    margin-bottom: 4px;
+    font-weight: 600;
+    color: var(--ink);
+    display: flex;
+    align-items: center;
+    gap: 12px;
+}
+
+.section-title::after {
+    content: '';
+    flex: 1;
+    height: 1px;
+    background: linear-gradient(90deg, rgba(255,180,84,0.5), transparent);
+}
+
+/* ============ CARD ============ */
+.card {
+    position: relative;  /* ✅ ADD THIS LINE */
+    background: var(--glass-soft);
+    border-radius: 18px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 1px solid var(--glass-line);
+    transition: 0.35s;
+}
+
+.card:hover {
+    transform: translateY(-8px);
+    border-color: rgba(255,180,84,0.4);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.4);
+}
+.card::before {
+    content: '';
+    position: absolute;
+    inset: -14px;
+    border-radius: 18px;
+    border: 1px dashed rgba(255,180,84,0.35);
+
+    opacity: 0;
+    transition: opacity 0.4s ease, border-color 0.4s ease;
+    pointer-events: none;
+}
+
+.card::after {
+    content: '';
+    position: absolute;
+    top: 0;
+    left: 0;
+    width: 7px;
+    height: 7px;
+    margin-left: -3.5px;
+    margin-top: -3.5px;
+    border-radius: 50%;
+    background: var(--ember);
+    box-shadow: 0 0 10px 3px rgba(255,180,84,0.7);
+
+    offset-path: inset(-14px round 18px);
+    offset-rotate: 0deg;
+    animation: cardOrbit 15s linear infinite;
+
+    opacity: 0;
+    transition: opacity 0.4s ease, box-shadow 0.4s ease;
+}
+.card:hover::before,
+.card:hover::after {
+    opacity: 1;
+}
+.card:hover::before {
+    border-color: rgba(255,180,84,0.65);
+}
+.card:hover::after {
+    box-shadow: 0 0 14px 4px rgba(255,180,84,0.95);
+}
+@keyframes cardOrbit {
+    from { offset-distance: 0%; }
+    to   { offset-distance: 100%; }
+}
+@keyframes cardOrbit {
+    from { offset-distance: 0%; }
+    to   { offset-distance: 100%; }
+}
+
+.personal-card .icon {
+    width: 46px;
+    height: 46px;
+    flex-shrink: 0;
+    border-radius: 50%;
+    background: rgba(255,180,84,0.12);
+    border: 1px solid rgba(255,180,84,0.3);
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    font-size: 20px;
+}
+
+.personal-card h3 {
+    margin: 0 0 8px 0;
+    color: var(--ink);
+}
+
+.personal-card p {
+    margin: 0 0 6px 0;
+    color: var(--ink-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+.cert-card-link {
+    display: flex;
+    align-items: center;
+    gap: 15px;
+    text-decoration: none;
+    color: inherit;
+}
+.cert-card-link:hover h3 {
+    color: var(--ember);
+}
+
+/* ============ PROJECT GRID ============ */
+.projects {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.project-card {
+    flex: 1;
+    min-width: 250px;
+    text-align: left;
+}
+
+.project-icon {
+    width: 54px;
+    height: 54px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+    background: rgba(255,255,255,0.05);
+    border: 1px solid rgba(255,255,255,0.14);
+    box-shadow: 0 0 18px -4px var(--glow-color, rgba(255,180,84,0.5));
+}
+
+.project-icon svg {
+    width: 24px;
+    height: 24px;
+}
+
+.project-icon.blue   { --glow-color: rgba(96,165,250,0.55);  }
+.project-icon.purple { --glow-color: rgba(167,139,250,0.55); }
+.project-icon.pink   { --glow-color: rgba(244,114,182,0.55); }
+.project-icon.green  { --glow-color: rgba(52,211,153,0.55);  }
+.project-icon.cyan   { --glow-color: rgba(34,211,238,0.55);  }
+.project-icon.orange { --glow-color: rgba(251,146,60,0.55);  }
+.project-icon.red    { --glow-color: rgba(248,113,113,0.55); }
+.project-icon.indigo { --glow-color: rgba(129,140,248,0.55); }
+.project-icon.teal   { --glow-color: rgba(45,212,191,0.55);  }
+.project-icon.yellow { --glow-color: rgba(250,204,21,0.55);  }
+.project-icon.gray   { --glow-color: rgba(148,163,184,0.55); }
+
+.project-card h3 {
+    margin: 0 0 8px 0;
+    color: var(--ink);
+    font-size: 17px;
+}
+
+.project-card p {
+    margin: 0;
+    color: var(--ink-muted);
+    font-size: 14px;
+    line-height: 1.5;
+}
+
+/* ============ BUTTON ============ */
+.btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 8px 22px;
+    background: transparent;
+    color: var(--ember);
+    font-weight: 600;
+    font-size: 14px;
+    border: 1.5px solid rgba(255,180,84,0.6);
+    border-radius: 999px;
+    text-decoration: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btn:hover {
+    background: var(--ember);
+    color: #1a1206;
+    box-shadow: 0 0 20px rgba(255,180,84,0.5);
+    transform: scale(1.05);
+}
+
+/* ============ CONTACT ============ */
+.contact {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+    transition: transform 0.3s;
+}
+
+.contact-item img {
+    width: 26px;
+    height: 26px;
+    filter: brightness(0) saturate(100%) invert(85%) sepia(15%) saturate(600%) hue-rotate(320deg) brightness(1.05);
+}
+
+.contact-item a {
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 500;
+    cursor: pointer;
+}
+
+.contact-item:hover {
+    transform: scale(1.06);
+}
+
+/* ============ RESPONSIVE ============ */
+@media (max-width: 768px) {
+    .main-profile {
+        flex-direction: column;
+        text-align: center;
+    }
+    .page-wrapper {
+        margin: 15px;
+        padding: 20px;
+    }
+    .personal-card {
+        flex-direction: column;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="lights-flicker"></div>
+<div class="bg-glow amber"></div>
+<div class="bg-glow rose"></div>
+<div class="bg-glow cyan"></div>
+<div class="milky-way"></div>  <!-- ADD THIS -->
+<div class="cosmic-left"></div>  <!-- milky way / remote sensing themed backdrop, left side -->
+
+<div class="page-wrapper">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="#">Profile</a>
+        <a href="#personal">Personal Details</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <div class="container">
+
+        <!-- PROFILE SECTION -->
+        <div class="main-profile">
+            <div class="profile-photo-wrap">
+                <img src="https://i.postimg.cc/SsTVJV9v/cropped-circle-image-(2).png" alt="profile">
+            </div>
+
+            <div>
+                <h1>Saraswati Chatterjee</h1>
+                <h3>GIS Analyst</h3>
+
+                <p>
+I am a Geoinformatics postgraduate with a strong interest in Remote Sensing and Geographic Information Systems, focused on applying spatial analysis and satellite data to understand environmental patterns and support sustainable decision-making. I have hands-on experience with tools like ArcGIS, QGIS, and Google Earth Engine, along with a growing foundation in Python for geospatial analysis. My interests lie in land resource monitoring, urban analysis, and environmental assessment, and I aim to contribute to real-world problem solving by transforming spatial data into meaningful and actionable insights.
+ insights.
+
+
+
+
+                </p>
+
+            </div>
+        </div>
+
+        <!-- PERSONAL DETAILS -->
+        <div class="section-title" id="personal">Personal Details</div>
+
+        <div class="personal-grid">
+
+            <!-- Education Card -->
+            <div class="card personal-card">
+                <div class="icon">🎓</div>
+                <div>
+                    <h3>Education Details</h3>
+                    <p>I completed my Higher Secondary education with a score of 83%, followed by a Bachelor's degree in Geography (Honours), awarded with First Division in 2024. I am currently pursuing an M.Sc. in Geoinformatics for the 2025–2027 academic session, with a focus on geospatial analysis and applied GIS techniques.</p>
+                </div>
+            </div>
+
+                        <!-- Skills Card -->
+            <div class="card personal-card">
+                <div class="icon">💻</div>
+                <div>
+                    <h3>Skills</h3>
+                    <p>
+                        ArcGIS • QGIS • Remote Sensing • Python <br>
+                        Spatial Analysis • Cartography • GEE <br>
+                        Data Management • MS Excel
+                    </p>
+                </div>
+            </div>
+
+            <!-- Goals & Ambition Card -->
+            <div class="card personal-card">
+                <div class="icon">🎯</div>
+                <div>
+                    <h3>Goals & Ambition</h3>
+                    <p>
+                        Your goal text here — e.g. becoming a skilled<br>
+                        GIS analyst working on environmental and<br>
+                        urban development projects.
+                    </p>
+                </div>
+            </div>
+
+                        <!-- Certificates Card -->
+            <div class="card personal-card">
+                <a href="https://your-certificates-page.com" target="_blank" rel="noopener" class="cert-card-link">
+                    <div class="icon">📜</div>
+                    <div>
+                        <h3>Certificates</h3>
+                    </div>
+                </a>
+            </div>
+
+        </div>
+
+        </div>
+
+        <!-- PROJECTS -->
+        <div class="section-title" id="projects">GIS Projects</div>
+
+        <div class="projects">
+
+            <div class="card project-card">
+                <div class="project-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#60a5fa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="10" r="3"></circle>
+                        <path d="M12 21c-4-4.5-7-8-7-11a7 7 0 0 1 14 0c0 3-3 6.5-7 11z"></path>
+                    </svg>
+                </div>
+                <h3>Land Resource Monitoring</h3>
+                <p>Tracking and assessing land resources using GIS.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#a78bfa" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <h3>Spatial Analysis</h3>
+                <p>Analyzed spatial patterns using GIS techniques.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#34d399" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"></path>
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.5 11 11"></path>
+                    </svg>
+                </div>
+                <h3>Environment Monitoring and Assessment</h3>
+                <p>Assessing environmental change using remote sensing.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon cyan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#22d3ee" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                    </svg>
+                </div>
+                <h3>Watershed Management</h3>
+                <p>Planning and managing watershed resources.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#fb923c" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18"></path>
+                        <path d="M5 21V7l7-4 7 4v14"></path>
+                        <path d="M9 21v-6h6v6"></path>
+                    </svg>
+                </div>
+                <h3>Urban Planning and Management</h3>
+                <p>Planning sustainable and organized urban growth.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon pink">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f472b6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                    </svg>
+                </div>
+                <h3>Resource Allocation</h3>
+                <p>Optimizing distribution of resources spatially.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f87171" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <h3>Hazard and Disaster Monitoring</h3>
+                <p>Monitoring and mapping natural hazard risks.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon indigo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#818cf8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                </div>
+                <h3>GEE</h3>
+                <p>Cloud-based geospatial analysis with Google Earth Engine.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon teal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#2dd4bf" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                </div>
+                <h3>Web GIS</h3>
+                <p>Building and publishing interactive web maps.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon yellow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#facc15" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3>Multivariate Statistics</h3>
+                <p>Applying statistical methods to geospatial datasets.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon gray">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#94a3b8" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3>Socio-Economic & Urban Development</h3>
+                <p>Studying socio-economic trends and urban growth.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+        </div>
+
+        <!-- CONTACT -->
+        <div id="contact">
+
+            <div class="section-title">Connect With Me</div>
+
+            <div class="card contact">
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png">
+                    <a href="https://www.linkedin.com/in/yourprofile" target="_blank" rel="noopener">LinkedIn</a>
+                </div>
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png">
+                    <a href="https://github.com/saraswatichatterjee" target="_blank" rel="noopener">GitHub</a>
+                </div>
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png">
+                    <a href="mailto:saraswatic053@gmail.com">saraswatic053@gmail.com</a>
+                </div>
+                
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/455/455705.png">
+                    <a href="tel:+91 9903265047">+91 9903265047</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
