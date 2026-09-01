@@ -1,0 +1,483 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+
+<title>Portfolio</title>
+
+<style>
+
+/* RESET */
+html, body {
+    margin: 0;
+    padding: 0;
+    font-family: 'Segoe UI', sans-serif;
+    scroll-behavior: smooth;
+}
+
+/* BACKGROUND */
+body {
+    background: linear-gradient(135deg, #a5b4fc, #f9a8d4);
+    min-height: 100vh;
+}
+
+/* PAGE WRAPPER - the single big glass box holding everything */
+.page-wrapper {
+    max-width: 1150px;
+    margin: 40px auto;
+    background: rgba(255,255,255,0.55);
+    backdrop-filter: blur(16px);
+    border-radius: 30px;
+    padding: 30px 40px 50px 40px;
+    border: 1px solid rgba(255,255,255,0.5);
+    box-shadow: 0 20px 50px rgba(0,0,0,0.15);
+}
+
+/* NAVBAR */
+.navbar {
+    position: sticky;
+    top: 20px;
+    background: rgba(255,255,255,0.7);
+    backdrop-filter: blur(10px);
+    padding: 15px;
+    text-align: center;
+    border-radius: 999px;
+    border: 1px solid rgba(255,255,255,0.6);
+}
+
+.navbar a {
+    margin: 0 20px;
+    text-decoration: none;
+    color: #333;
+    font-weight: 500;
+}
+
+.navbar a:hover {
+    color: #4f46e5;
+}
+
+/* CONTAINER */
+.container {
+    width: 100%;
+    margin: auto;
+    padding: 40px 0 0 0;
+}
+
+/* MAIN PROFILE CARD */
+.main-profile {
+    display: flex;
+    align-items: center;
+    gap: 30px;
+    background: rgba(255,255,255,0.6);
+    border-radius: 25px;
+    padding: 30px;
+    border: 1px solid rgba(255,255,255,0.5);
+    transition: 0.4s;
+}
+
+.main-profile:hover {
+    transform: translateY(-8px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+.main-profile img {
+    width: 150px;
+    height: 150px;
+    border-radius: 50%;
+    object-fit: cover;
+    border: 4px solid #924040;
+    box-shadow: 0 4px 15px rgba(0,0,0,0.15);
+}
+
+/* SECTION TITLE */
+.section-title {
+    font-size: 26px;
+    margin-top: 50px;
+    font-weight: 600;
+}
+
+/* CARD */
+.card {
+    background: rgba(255,255,255,0.6);
+    border-radius: 20px;
+    padding: 25px;
+    margin-top: 20px;
+    border: 1px solid rgba(255,255,255,0.5);
+    transition: 0.4s;
+}
+
+.card:hover {
+    transform: translateY(-10px);
+    box-shadow: 0 20px 40px rgba(0,0,0,0.2);
+}
+
+/* PROJECT GRID */
+.projects {
+    display: flex;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+.project-card {
+    flex: 1;
+    min-width: 250px;
+    text-align: left;
+}
+
+.project-icon {
+    width: 56px;
+    height: 56px;
+    border-radius: 50%;
+    display: flex;
+    align-items: center;
+    justify-content: center;
+    margin-bottom: 16px;
+}
+
+.project-icon svg {
+    width: 26px;
+    height: 26px;
+}
+
+.project-icon.blue { background: #dbeafe; }
+.project-icon.purple { background: #ede9fe; }
+.project-icon.pink { background: #fce7f3; }
+.project-icon.green { background: #d1fae5; }
+.project-icon.cyan { background: #cffafe; }
+.project-icon.orange { background: #ffedd5; }
+.project-icon.red { background: #fee2e2; }
+.project-icon.indigo { background: #e0e7ff; }
+.project-icon.teal { background: #ccfbf1; }
+.project-icon.yellow { background: #fef9c3; }
+.project-icon.gray { background: #e5e7eb; }
+
+.project-card h3 {
+    margin: 0 0 8px 0;
+}
+
+.project-card p {
+    margin: 0;
+    color: #555;
+    font-size: 14px;
+    line-height: 1.4;
+}
+
+/* BUTTON */
+.btn {
+    display: inline-block;
+    margin-top: 16px;
+    padding: 8px 24px;
+    background: transparent;
+    color: #4f46e5;
+    font-weight: 600;
+    border: 1.5px solid #4f46e5;
+    border-radius: 999px;
+    text-decoration: none;
+    transition: 0.3s;
+    cursor: pointer;
+}
+
+.btn:hover {
+    transform: scale(1.05);
+    background: #4f46e5;
+    color: white;
+}
+
+/* CONTACT */
+
+.contact {
+    display: flex;
+    justify-content: space-around;
+    align-items: center;
+    gap: 20px;
+    flex-wrap: wrap;
+}
+
+/* EACH ITEM */
+.contact-item {
+    display: flex;
+    align-items: center;
+    gap: 10px;
+}
+
+/* ICON */
+.contact-item img {
+    width: 28px;
+    height: 28px;
+}
+
+/* LINK */
+.contact-item a {
+    text-decoration: none;
+    color: #1d4ed8;
+    font-weight: 500;
+    cursor: pointer;
+}
+
+/* HOVER */
+.contact-item:hover {
+    transform: scale(1.05);
+    transition: 0.3s;
+}
+
+/* RESPONSIVE */
+@media (max-width: 768px) {
+    .main-profile {
+        flex-direction: column;
+        text-align: center;
+    }
+    .page-wrapper {
+        margin: 15px;
+        padding: 20px;
+    }
+}
+
+</style>
+</head>
+
+<body>
+
+<div class="page-wrapper">
+
+    <!-- NAVBAR -->
+    <div class="navbar">
+        <a href="#">Profile</a>
+        <a href="#personal">Personal Details</a>
+        <a href="#projects">Projects</a>
+        <a href="#contact">Contact</a>
+    </div>
+
+    <div class="container">
+
+        <!-- PROFILE SECTION (LIKE IMAGE) -->
+        <div class="main-profile">
+            <img src="https://i.postimg.cc/Njc4T1rd/cropped-circle-image-(1).png" alt="profile">
+
+            <div>
+                <h1>Your Name</h1>
+                <h3 style="color:#4f46e5;">Remote Sensing & GIS Specialist</h3>
+
+                <p>
+                    Hello! I'm passionate about Remote Sensing and GIS.<br>
+                    I love using geospatial technologies to solve real-world problems.
+                </p>
+
+                <p>
+                    My main interest lies in spatial analysis, environmental monitoring,
+                    and mapping for sustainable development.
+                </p>
+
+            </div>
+        </div>
+
+        <!-- PERSONAL DETAILS -->
+        <div class="section-title" id="personal">Personal Details</div>
+
+        <div class="personal-grid">
+
+            <!-- Education Card -->
+            <div class="card personal-card">
+                <div class="icon">🎓</div>
+                <div>
+                    <h3>Education Details</h3>
+                    <p>• MSc Geoinformatics<br>
+                       JIS University</p>
+                    <p>• BSc Geography (Hons.)<br>
+                       Calcutta University</p>
+                </div>
+            </div>
+
+            <!-- Skills Card -->
+            <div class="card personal-card">
+                <div class="icon">💻</div>
+                <div>
+                    <h3>Skills</h3>
+                    <p>
+                        ArcGIS • QGIS • Remote Sensing • Python <br>
+                        Spatial Analysis • Cartography • GEE <br>
+                        Data Management • MS Excel
+                    </p>
+                </div>
+            </div>
+
+        </div>
+
+        <!-- PROJECTS -->
+        <div class="section-title" id="projects">GIS Projects</div>
+
+        <div class="projects">
+
+            <div class="card project-card">
+                <div class="project-icon blue">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#3b82f6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="10" r="3"></circle>
+                        <path d="M12 21c-4-4.5-7-8-7-11a7 7 0 0 1 14 0c0 3-3 6.5-7 11z"></path>
+                    </svg>
+                </div>
+                <h3>Land Resource Monitoring</h3>
+                <p>Tracking and assessing land resources using GIS.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon purple">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#8b5cf6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <polygon points="12 2 2 7 12 12 22 7 12 2"></polygon>
+                        <polyline points="2 17 12 22 22 17"></polyline>
+                        <polyline points="2 12 12 17 22 12"></polyline>
+                    </svg>
+                </div>
+                <h3>Spatial Analysis</h3>
+                <p>Analyzed spatial patterns using GIS techniques.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon green">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#10b981" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M11 20A7 7 0 0 1 9.8 6.1C15.5 5 17 4.48 19 2c1 2 2 4.18 2 8 0 5.5-4.78 10-10 10z"></path>
+                        <path d="M2 21c0-3 1.85-5.36 5.08-6C9.5 14.52 11 13.5 11 11"></path>
+                    </svg>
+                </div>
+                <h3>Environment Monitoring and Assessment</h3>
+                <p>Assessing environmental change using remote sensing.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon cyan">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#06b6d4" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M12 2.69l5.66 5.66a8 8 0 1 1-11.31 0z"></path>
+                    </svg>
+                </div>
+                <h3>Watershed Management</h3>
+                <p>Planning and managing watershed resources.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon orange">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#f97316" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M3 21h18"></path>
+                        <path d="M5 21V7l7-4 7 4v14"></path>
+                        <path d="M9 21v-6h6v6"></path>
+                    </svg>
+                </div>
+                <h3>Urban Planning and Management</h3>
+                <p>Planning sustainable and organized urban growth.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon pink">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ec4899" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M21.21 15.89A10 10 0 1 1 8 2.83"></path>
+                        <path d="M22 12A10 10 0 0 0 12 2v10z"></path>
+                    </svg>
+                </div>
+                <h3>Resource Allocation</h3>
+                <p>Optimizing distribution of resources spatially.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon red">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#ef4444" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M10.29 3.86L1.82 18a2 2 0 0 0 1.71 3h16.94a2 2 0 0 0 1.71-3L13.71 3.86a2 2 0 0 0-3.42 0z"></path>
+                        <line x1="12" y1="9" x2="12" y2="13"></line>
+                        <line x1="12" y1="17" x2="12.01" y2="17"></line>
+                    </svg>
+                </div>
+                <h3>Hazard and Disaster Monitoring</h3>
+                <p>Monitoring and mapping natural hazard risks.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon indigo">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#6366f1" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <circle cx="12" cy="12" r="10"></circle>
+                        <line x1="2" y1="12" x2="22" y2="12"></line>
+                        <path d="M12 2a15.3 15.3 0 0 1 4 10 15.3 15.3 0 0 1-4 10 15.3 15.3 0 0 1-4-10 15.3 15.3 0 0 1 4-10z"></path>
+                    </svg>
+                </div>
+                <h3>GEE</h3>
+                <p>Cloud-based geospatial analysis with Google Earth Engine.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon teal">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#14b8a6" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <ellipse cx="12" cy="5" rx="9" ry="3"></ellipse>
+                        <path d="M21 12c0 1.66-4 3-9 3s-9-1.34-9-3"></path>
+                        <path d="M3 5v14c0 1.66 4 3 9 3s9-1.34 9-3V5"></path>
+                    </svg>
+                </div>
+                <h3>Web GIS</h3>
+                <p>Building and publishing interactive web maps.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon yellow">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#eab308" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <line x1="18" y1="20" x2="18" y2="10"></line>
+                        <line x1="12" y1="20" x2="12" y2="4"></line>
+                        <line x1="6" y1="20" x2="6" y2="14"></line>
+                    </svg>
+                </div>
+                <h3>Multivariate Statistics</h3>
+                <p>Applying statistical methods to geospatial datasets.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+            <div class="card project-card">
+                <div class="project-icon gray">
+                    <svg viewBox="0 0 24 24" fill="none" stroke="#6b7280" stroke-width="2" stroke-linecap="round" stroke-linejoin="round">
+                        <path d="M17 21v-2a4 4 0 0 0-4-4H5a4 4 0 0 0-4 4v2"></path>
+                        <circle cx="9" cy="7" r="4"></circle>
+                        <path d="M23 21v-2a4 4 0 0 0-3-3.87"></path>
+                        <path d="M16 3.13a4 4 0 0 1 0 7.75"></path>
+                    </svg>
+                </div>
+                <h3>Socio-Economic & Urban Development</h3>
+                <p>Studying socio-economic trends and urban growth.</p>
+                <a href="https://your-link.com" class="btn" target="_blank" rel="noopener">View</a>
+            </div>
+
+        </div>
+
+        <!-- CONTACT -->
+        <div id="contact">
+
+            <div class="section-title">Connect With Me</div>
+
+            <div class="card contact">
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/174/174857.png">
+                    <a href="https://www.linkedin.com/in/yourprofile" target="_blank" rel="noopener">LinkedIn</a>
+                </div>
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/25/25231.png">
+                    <a href="https://github.com/yourusername" target="_blank" rel="noopener">GitHub</a>
+                </div>
+
+                <div class="contact-item">
+                    <img src="https://cdn-icons-png.flaticon.com/512/561/561127.png">
+                    <a href="mailto:yourmail@gmail.com">Email</a>
+                </div>
+
+            </div>
+
+        </div>
+
+    </div>
+
+</div>
+
+</body>
+</html>
