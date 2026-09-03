@@ -400,18 +400,20 @@ body::before {
 /* targeting-frame corners on the profile photo — echoes a geotagged image chip / AOI marker */
 .profile-photo-wrap .geo-corner {
     position: absolute;
-    width: 16px;
-    height: 16px;
-    border: 2px solid var(--signal);
-    opacity: 0.9;
+    width: 12px;
+    height: 12px;
+    border: 1.5px solid var(--cyan);
+    opacity: 0;
     z-index: 2;
+    transition: opacity 0.4s ease;
 }
 .profile-photo-wrap .geo-corner.tl { top: -8px; left: -8px; border-right: none; border-bottom: none; }
 .profile-photo-wrap .geo-corner.tr { top: -8px; right: -8px; border-left: none; border-bottom: none; }
 .profile-photo-wrap .geo-corner.bl { bottom: -8px; left: -8px; border-right: none; border-top: none; }
 .profile-photo-wrap .geo-corner.br { bottom: -8px; right: -8px; border-left: none; border-top: none; }
 .profile-photo-wrap:hover::before,
-.profile-photo-wrap:hover::after {
+.profile-photo-wrap:hover::after,
+.profile-photo-wrap:hover .geo-corner {
     opacity: 1;
 }
 
@@ -441,15 +443,11 @@ body::before {
 .main-profile h3 {
     margin: 6px 0 14px 0;
     font-weight: 600;
-    background: var(--spectrum);
-    background-size: 200% auto;
-    -webkit-background-clip: text;
-    background-clip: text;
-    -webkit-text-fill-color: transparent;
-    color: var(--ember);
-    animation: spectrumShift 8s linear infinite;
-    display: inline-block;
-    letter-spacing: 0.3px;
+    font-size: 15px;
+    text-transform: uppercase;
+    letter-spacing: 2px;
+    color: var(--cyan);
+    text-shadow: 0 0 12px rgba(23,230,255,0.35);
 }
 @keyframes spectrumShift {
     0%   { background-position: 0% 50%; }
@@ -754,7 +752,7 @@ body::before {
 
             <div>
                 <h1>Saraswati Chatterjee</h1>
-                <h3>Remote Sensing & GIS Specialist</h3>
+                <h3>GIS Analyst</h3>
 
                 <p>
 I am a Geoinformatics postgraduate with a strong interest in Remote Sensing and Geographic Information Systems, focused on applying spatial analysis and satellite data to understand environmental patterns and support sustainable decision-making. I have hands-on experience with tools like ArcGIS, QGIS, and Google Earth Engine, along with a growing foundation in Python for geospatial analysis. My interests lie in land resource monitoring, urban analysis, and environmental assessment, and I aim to contribute to real-world problem solving by transforming spatial data into meaningful and actionable insights.
