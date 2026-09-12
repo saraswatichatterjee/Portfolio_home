@@ -1,0 +1,630 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+<meta charset="UTF-8">
+<meta name="viewport" content="width=device-width, initial-scale=1.0">
+<title>Earth Engine Analysis Console</title>
+
+<link rel="preconnect" href="https://fonts.googleapis.com">
+<link rel="preconnect" href="https://fonts.gstatic.com" crossorigin>
+<link href="https://fonts.googleapis.com/css2?family=Manrope:wght@400;500;600;700;800&family=JetBrains+Mono:wght@400;500;700&display=swap" rel="stylesheet">
+
+<style>
+
+/* ============ TOKENS ============ */
+:root {
+    --void:       #050c09;
+    --panel-1:    #0d221a;
+    --panel-2:    #0a1912;
+    --line:       rgba(167,255,210,0.16);
+    --line-soft:  rgba(255,255,255,0.06);
+    --ink:        #eafff2;
+    --ink-dim:    #9fc9b8;
+    --leaf:       #3ddc97;
+    --leaf-deep:  #1a7a4c;
+    --sky:        #38bdf8;
+    --amber:      #fbbf24;
+    --heat:       #fb7a4c;
+    --violet:     #c084fc;
+    --sans: 'Manrope', sans-serif;
+    --mono: 'JetBrains Mono', monospace;
+}
+
+html, body { margin: 0; padding: 0; font-family: var(--sans); scroll-behavior: smooth; }
+h1, h2, h3 { font-family: var(--sans); font-weight: 700; }
+.mono { font-family: var(--mono); }
+
+body {
+    background: linear-gradient(180deg, #030906 0%, #061710 45%, #0a1f16 100%);
+    min-height: 100vh;
+    position: relative;
+    overflow-x: hidden;
+    color: var(--ink);
+}
+
+/* faint lat/long graticule + two soft sensor-glow blobs standing in for starfield */
+body::before {
+    content: '';
+    position: fixed;
+    inset: 0;
+    z-index: -1;
+    pointer-events: none;
+    background-image:
+        repeating-linear-gradient(0deg,  rgba(167,255,210,0.05) 0px, rgba(167,255,210,0.05) 1px, transparent 1px, transparent 64px),
+        repeating-linear-gradient(90deg, rgba(167,255,210,0.05) 0px, rgba(167,255,210,0.05) 1px, transparent 1px, transparent 64px),
+        radial-gradient(ellipse 50% 32% at 12% 8%,  rgba(61,220,151,0.10), transparent 65%),
+        radial-gradient(ellipse 45% 30% at 92% 78%, rgba(56,189,248,0.09), transparent 65%);
+}
+
+/* ============ PAGE WRAPPER ============ */
+.page-wrapper {
+    position: relative;
+    z-index: 1;
+    max-width: 1120px;
+    margin: 46px auto;
+    background: linear-gradient(165deg, rgba(13,34,26,0.62) 0%, rgba(10,25,18,0.55) 45%, rgba(6,15,11,0.5) 100%);
+    backdrop-filter: blur(16px);
+    -webkit-backdrop-filter: blur(16px);
+    border-radius: 22px;
+    padding: 26px 40px 64px 40px;
+    border: 1px solid var(--line);
+    box-shadow: 0 30px 70px rgba(0,0,0,0.55), 0 0 60px rgba(61,220,151,0.08);
+}
+
+/* ============ CONSOLE BAR (navbar) ============ */
+.console-bar {
+    position: sticky;
+    top: 18px;
+    z-index: 5;
+    display: flex;
+    align-items: center;
+    justify-content: space-between;
+    gap: 14px;
+    background: rgba(6,16,12,0.72);
+    backdrop-filter: blur(10px);
+    padding: 12px 20px;
+    border-radius: 999px;
+    border: 1px solid var(--line);
+}
+.session-tag {
+    display: flex;
+    align-items: center;
+    gap: 8px;
+    font-size: 12.5px;
+    color: var(--ink-dim);
+    letter-spacing: 0.3px;
+}
+.session-tag .dot {
+    width: 7px; height: 7px; border-radius: 50%;
+    background: var(--leaf);
+    box-shadow: 0 0 8px 2px rgba(61,220,151,0.6);
+    animation: pulse 1.8s ease-in-out infinite;
+}
+@keyframes pulse { 0%,100% { opacity: 1; } 50% { opacity: 0.35; } }
+.console-bar a {
+    text-decoration: none;
+    color: var(--ink-dim);
+    font-weight: 600;
+    font-size: 14px;
+    transition: color 0.25s;
+}
+.console-bar a:hover { color: var(--leaf); }
+
+/* ============ HERO — code editor / map split, standing in for the EE Code Editor ============ */
+.hero {
+    position: relative;
+    margin-top: 36px;
+    border-radius: 18px;
+    overflow: hidden;
+    height: 360px;
+    border: 1px solid var(--line);
+    background: radial-gradient(ellipse at 25% 25%, #0e2419 0%, #050c09 75%);
+}
+.hero-art { position: absolute; inset: -4%; width: 108%; height: 108%; animation: heroDrift 30s ease-in-out infinite alternate; }
+@keyframes heroDrift { 0% { transform: scale(1) translate(0,0); } 100% { transform: scale(1.04) translate(-1%, -0.6%); } }
+.hero-scrim {
+    position: absolute; inset: 0;
+    background: linear-gradient(0deg, rgba(5,12,9,0.94) 0%, rgba(5,12,9,0.6) 42%, rgba(5,12,9,0.12) 72%, rgba(5,12,9,0.3) 100%);
+}
+.hero-content { position: absolute; left: 0; right: 0; bottom: 0; padding: 28px 36px 26px 36px; }
+.hero-content .eyebrow { color: var(--sky); font-size: 12.5px; font-weight: 700; letter-spacing: 0.4px; font-family: var(--mono); margin-bottom: 8px; }
+.hero-content h1 { font-size: 36px; margin: 0 0 10px 0; color: var(--ink); }
+.hero-content p { color: var(--ink-dim); max-width: 600px; line-height: 1.65; margin: 0; font-size: 15px; }
+
+/* ============ LAYERS PANEL (table of contents) ============ */
+.layers-panel {
+    margin: 32px 0 8px 0;
+    padding: 22px 26px;
+    border-radius: 16px;
+    background: linear-gradient(160deg, rgba(13,34,26,0.5) 0%, rgba(7,17,13,0.45) 100%);
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.3);
+}
+.layers-title {
+    font-family: var(--mono);
+    font-size: 12px;
+    font-weight: 500;
+    letter-spacing: 1.4px;
+    color: var(--sky);
+    margin-bottom: 14px;
+}
+.layers-list { list-style: none; margin: 0; padding: 0; }
+.layers-list li {
+    border-bottom: 1px solid var(--line-soft);
+}
+.layers-list li:last-child { border-bottom: none; }
+.layers-list a {
+    display: flex;
+    align-items: center;
+    gap: 12px;
+    padding: 11px 4px;
+    text-decoration: none;
+    color: var(--ink);
+    font-weight: 600;
+    font-size: 15px;
+    transition: color 0.25s, padding-left 0.25s;
+}
+.layers-list a:hover { color: var(--accent, var(--leaf)); padding-left: 6px; }
+.layer-toggle {
+    flex-shrink: 0;
+    width: 26px; height: 14px;
+    border-radius: 999px;
+    background: rgba(255,255,255,0.08);
+    border: 1px solid var(--line);
+    position: relative;
+}
+.layer-toggle::after {
+    content: '';
+    position: absolute;
+    top: 1.5px; left: 2px;
+    width: 9px; height: 9px;
+    border-radius: 50%;
+    background: var(--accent, var(--leaf));
+}
+.layer-band {
+    font-family: var(--mono);
+    font-size: 11px;
+    color: var(--ink-dim);
+    margin-left: auto;
+    letter-spacing: 0.2px;
+}
+
+/* ============ TOPIC BLOCK ============ */
+.topic-block {
+    margin-top: 60px;
+    padding-top: 40px;
+    border-top: 1px solid var(--line-soft);
+    scroll-margin-top: 96px;
+}
+.topic-block:first-of-type { border-top: none; }
+
+.topic-head { max-width: 680px; margin-bottom: 20px; }
+.topic-head .eyebrow {
+    font-family: var(--mono);
+    color: var(--accent, var(--leaf));
+    font-size: 12.5px;
+    font-weight: 500;
+    letter-spacing: 0.3px;
+    margin-bottom: 8px;
+}
+.topic-head h2 { font-size: 25px; margin: 0 0 10px 0; color: var(--ink); }
+.topic-head p { color: var(--ink-dim); line-height: 1.7; font-size: 15px; margin: 0; }
+
+/* ============ PREVIEW WINDOW (GEE App browser chrome) ============ */
+.preview-window {
+    position: relative;
+    border-radius: 14px;
+    overflow: hidden;
+    background: #071410;
+    border: 1px solid var(--line);
+    box-shadow: 0 10px 26px rgba(0,0,0,0.35);
+    transition: transform 0.4s ease, box-shadow 0.4s ease, border-color 0.4s ease;
+}
+.preview-window:hover {
+    transform: translateY(-6px);
+    border-color: var(--accent, var(--leaf));
+    box-shadow: 0 22px 44px rgba(0,0,0,0.5), 0 0 30px rgba(61,220,151,0.10);
+}
+.preview-chrome {
+    display: flex; align-items: center; gap: 10px;
+    padding: 10px 14px;
+    background: rgba(255,255,255,0.03);
+    border-bottom: 1px solid var(--line);
+}
+.preview-chrome .dot { width: 9px; height: 9px; border-radius: 50%; opacity: 0.85; }
+.preview-chrome .dot.r { background: #fb7a4c; }
+.preview-chrome .dot.y { background: #fbbf24; }
+.preview-chrome .dot.g { background: #3ddc97; }
+.preview-url {
+    flex: 1; margin-left: 6px; padding: 5px 12px;
+    background: rgba(0,0,0,0.32); border-radius: 999px;
+    color: var(--ink-dim); font-size: 12px; font-family: var(--mono);
+    overflow: hidden; text-overflow: ellipsis; white-space: nowrap;
+}
+.ee-badge {
+    display: flex; align-items: center; gap: 6px;
+    font-size: 11px; font-weight: 700; letter-spacing: 0.4px;
+    color: var(--leaf); font-family: var(--mono); flex-shrink: 0;
+}
+.ee-badge .dot { width: 6px; height: 6px; border-radius: 50%; background: #3ddc97; animation: pulse 1.8s ease-in-out infinite; }
+
+.preview-frame {
+    position: relative;
+    width: 100%;
+    aspect-ratio: 1902 / 910;
+    overflow: hidden;
+    background: #060f0b;
+}
+.preview-frame img {
+    display: block;
+    width: 100%;
+    height: 100%;
+    object-fit: cover;
+}
+.preview-frame::after {
+    content: '';
+    position: absolute; inset: 0;
+    background-image:
+        repeating-linear-gradient(0deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 26px),
+        repeating-linear-gradient(90deg, rgba(255,255,255,0.035) 0px, rgba(255,255,255,0.035) 1px, transparent 1px, transparent 26px);
+    pointer-events: none;
+}
+
+/* per-topic raster fills */
+.raster-lst {
+    background:
+        radial-gradient(circle at 28% 34%, rgba(251,122,76,0.95) 0%, rgba(251,122,76,0.35) 20%, transparent 42%),
+        radial-gradient(circle at 60% 58%, rgba(248,113,113,0.85) 0%, rgba(248,113,113,0.3) 24%, transparent 48%),
+        radial-gradient(circle at 80% 22%, rgba(253,224,71,0.75) 0%, transparent 32%),
+        radial-gradient(circle at 15% 75%, rgba(56,189,248,0.4) 0%, transparent 34%),
+        linear-gradient(160deg, #123a35 0%, #0a2420 60%, #071815 100%);
+}
+.raster-water {
+    background:
+        radial-gradient(ellipse 26% 16% at 24% 62%, rgba(56,189,248,0.9), transparent 72%),
+        radial-gradient(ellipse 16% 11% at 54% 28%, rgba(125,211,252,0.8), transparent 72%),
+        radial-gradient(ellipse 20% 14% at 76% 68%, rgba(14,165,233,0.85), transparent 72%),
+        radial-gradient(ellipse 12% 9%  at 40% 80%, rgba(56,189,248,0.6), transparent 72%),
+        linear-gradient(160deg, #0b2130 0%, #081722 60%, #050f16 100%);
+}
+.raster-veg {
+    background:
+        radial-gradient(circle at 20% 30%, rgba(61,220,151,0.9), transparent 46%),
+        radial-gradient(circle at 55% 60%, rgba(22,163,74,0.85), transparent 50%),
+        radial-gradient(circle at 80% 30%, rgba(190,242,100,0.6), transparent 40%),
+        radial-gradient(circle at 30% 78%, rgba(202,138,4,0.4), transparent 34%),
+        linear-gradient(160deg, #14301b 0%, #0c1f14 60%, #081711 100%);
+}
+.raster-ntl {
+    background:
+        radial-gradient(circle at 34% 40%, rgba(251,191,36,0.95) 0%, rgba(251,191,36,0.25) 9%, transparent 20%),
+        radial-gradient(circle at 60% 64%, rgba(253,224,71,0.9) 0%, transparent 15%),
+        radial-gradient(circle at 74% 30%, rgba(249,115,22,0.8) 0%, transparent 13%),
+        radial-gradient(circle at 20% 68%, rgba(251,191,36,0.55) 0%, transparent 11%),
+        radial-gradient(circle at 46% 20%, rgba(253,224,71,0.5) 0%, transparent 9%),
+        #040404;
+}
+.raster-lulc {
+    background:
+        conic-gradient(from 30deg at 24% 30%,  #16a34a 0deg 62deg, transparent 62deg 360deg),
+        conic-gradient(from 205deg at 66% 24%, #eab308 0deg 88deg, transparent 88deg 360deg),
+        conic-gradient(from 120deg at 40% 72%, #94a3b8 0deg 74deg, transparent 74deg 360deg),
+        conic-gradient(from 300deg at 80% 62%, #38bdf8 0deg 78deg, transparent 78deg 360deg),
+        conic-gradient(from 15deg at 58% 88%,  #ca8a04 0deg 96deg, transparent 96deg 360deg),
+        linear-gradient(160deg, #1b2a1c 0%, #10190f 100%);
+}
+
+.inspector-chip {
+    position: absolute; top: 14px; left: 14px;
+    background: rgba(4,10,7,0.75);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 7px 11px;
+    font-family: var(--mono);
+    font-size: 11.5px;
+    color: var(--ink);
+    backdrop-filter: blur(4px);
+}
+.inspector-chip .k { color: var(--ink-dim); }
+
+.legend-bar {
+    position: absolute; left: 14px; right: 14px; bottom: 14px;
+    background: rgba(4,10,7,0.72);
+    border: 1px solid var(--line);
+    border-radius: 8px;
+    padding: 8px 12px;
+    backdrop-filter: blur(4px);
+}
+.legend-ramp {
+    height: 6px;
+    border-radius: 999px;
+    margin-bottom: 6px;
+}
+.legend-labels {
+    display: flex; justify-content: space-between;
+    font-family: var(--mono); font-size: 10.5px; color: var(--ink-dim);
+}
+.legend-chips { display: flex; flex-wrap: wrap; gap: 10px; }
+.legend-chip { display: flex; align-items: center; gap: 6px; font-family: var(--mono); font-size: 10.5px; color: var(--ink-dim); }
+.legend-chip .sw { width: 9px; height: 9px; border-radius: 2px; flex-shrink: 0; }
+
+.preview-link {
+    margin-top: 14px;
+    display: inline-flex; align-items: center; gap: 8px;
+    text-decoration: none;
+    color: var(--accent, var(--leaf));
+    font-weight: 700; font-size: 14px;
+    padding: 9px 16px;
+    border: 1px solid var(--accent, var(--leaf));
+    border-radius: 999px;
+    transition: background 0.3s, color 0.3s;
+}
+.preview-link:hover { background: rgba(61,220,151,0.12); }
+.preview-link svg { width: 13px; height: 13px; }
+
+@media (max-width: 720px) {
+    .page-wrapper { padding: 20px 18px 46px 18px; margin: 20px auto; }
+    .hero-content h1 { font-size: 26px; }
+}
+
+</style>
+</head>
+<body>
+
+<div class="page-wrapper">
+
+    <div class="console-bar">
+        <div class="session-tag"><span class="dot"></span> session · earth-engine · active</div>
+        <a href="index.html">Back to Portfolio</a>
+    </div>
+
+    <!-- ============ HERO ============ -->
+    <div class="hero">
+        <svg class="hero-art" viewBox="0 0 800 400" xmlns="http://www.w3.org/2000/svg" preserveAspectRatio="xMidYMid slice">
+            <defs>
+                <radialGradient id="globeBody" cx="38%" cy="34%" r="70%">
+                    <stop offset="0%" stop-color="#12382a"/>
+                    <stop offset="55%" stop-color="#0a2419"/>
+                    <stop offset="100%" stop-color="#051410"/>
+                </radialGradient>
+                <radialGradient id="globeRim" cx="50%" cy="50%" r="50%">
+                    <stop offset="82%" stop-color="#3ddc97" stop-opacity="0"/>
+                    <stop offset="100%" stop-color="#3ddc97" stop-opacity="0.45"/>
+                </radialGradient>
+                <clipPath id="globeClip"><circle cx="400" cy="200" r="150"/></clipPath>
+            </defs>
+
+            <!-- faint background graticule -->
+            <g stroke="#3ddc97" stroke-opacity="0.06" stroke-width="1">
+                <line x1="0" y1="90" x2="800" y2="90"/>
+                <line x1="0" y1="180" x2="800" y2="180"/>
+                <line x1="0" y1="270" x2="800" y2="270"/>
+                <line x1="0" y1="360" x2="800" y2="360"/>
+                <line x1="130" y1="0" x2="130" y2="400"/>
+                <line x1="280" y1="0" x2="280" y2="400"/>
+                <line x1="430" y1="0" x2="430" y2="400"/>
+                <line x1="580" y1="0" x2="580" y2="400"/>
+                <line x1="700" y1="0" x2="700" y2="400"/>
+            </g>
+
+            <!-- outer orbit rings -->
+            <circle cx="400" cy="200" r="188" fill="none" stroke="#3ddc97" stroke-opacity="0.14" stroke-dasharray="1 7"/>
+            <circle cx="400" cy="200" r="172" fill="none" stroke="#38bdf8" stroke-opacity="0.1"/>
+
+            <!-- globe body -->
+            <circle cx="400" cy="200" r="150" fill="url(#globeBody)"/>
+            <g clip-path="url(#globeClip)">
+                <!-- latitude lines -->
+                <ellipse cx="400" cy="200" rx="150" ry="150" fill="none" stroke="#eafff2" stroke-opacity="0.08"/>
+                <ellipse cx="400" cy="140" rx="140" ry="46" fill="none" stroke="#eafff2" stroke-opacity="0.09"/>
+                <ellipse cx="400" cy="200" rx="150" ry="62" fill="none" stroke="#eafff2" stroke-opacity="0.1"/>
+                <ellipse cx="400" cy="260" rx="140" ry="46" fill="none" stroke="#eafff2" stroke-opacity="0.09"/>
+                <!-- longitude lines -->
+                <ellipse cx="400" cy="200" rx="46" ry="150" fill="none" stroke="#eafff2" stroke-opacity="0.09"/>
+                <ellipse cx="400" cy="200" rx="98" ry="150" fill="none" stroke="#eafff2" stroke-opacity="0.09"/>
+                <line x1="400" y1="50" x2="400" y2="350" stroke="#eafff2" stroke-opacity="0.09"/>
+                <!-- landmass blobs -->
+                <path d="M330 150 q30 -22 62 -6 q22 10 12 30 q-18 22 -52 16 q-30 -6 -22 -40z" fill="#1a7a4c" opacity="0.6"/>
+                <path d="M420 190 q40 -14 66 10 q16 18 -4 34 q-30 20 -60 4 q-22 -12 -2 -48z" fill="#1a7a4c" opacity="0.55"/>
+                <path d="M350 250 q26 -10 44 8 q10 14 -8 24 q-24 12 -42 -4 q-12 -12 6 -28z" fill="#1a7a4c" opacity="0.5"/>
+                <!-- highlighted study region -->
+                <path d="M392 176 l16 -6 l14 8 l-2 16 l-14 10 l-16 -6 z" fill="#fbbf24" opacity="0.85" stroke="#fde68a" stroke-width="1"/>
+                <!-- scan sweep -->
+                <rect x="250" y="50" width="300" height="300" fill="#3ddc97" opacity="0.05">
+                    <animate attributeName="x" values="250;560;250" dur="6s" repeatCount="indefinite"/>
+                    <animate attributeName="width" values="10;10;10" dur="6s" repeatCount="indefinite"/>
+                </rect>
+            </g>
+            <circle cx="400" cy="200" r="150" fill="url(#globeRim)"/>
+            <circle cx="400" cy="200" r="150" fill="none" stroke="#3ddc97" stroke-opacity="0.3"/>
+
+            <!-- pin marking the highlighted region -->
+            <g transform="translate(408,166)">
+                <path d="M0 0 c0 12 -13 22 -13 22 s-13 -10 -13 -22 a13 13 0 0 1 26 0z" fill="#fbbf24"/>
+                <circle cx="-13" cy="0" r="5" fill="#051410"/>
+            </g>
+
+            <!-- orbit arc + satellite -->
+            <path id="orbitPath" d="M 210 90 A 260 260 0 0 1 610 320" fill="none" stroke="#38bdf8" stroke-opacity="0.4" stroke-dasharray="2 6"/>
+            <g>
+                <circle r="4" fill="#38bdf8"/>
+                <path d="M-10 0 h6 M4 0 h6 M0 -10 v6 M0 4 v6" stroke="#38bdf8" stroke-width="1.5" opacity="0.8"/>
+                <animateMotion dur="10s" repeatCount="indefinite" rotate="auto">
+                    <mpath href="#orbitPath"/>
+                </animateMotion>
+            </g>
+        </svg>
+
+        <div class="hero-scrim"></div>
+
+        <div class="hero-content">
+            <div class="eyebrow">Remote Sensing · Google Earth Engine</div>
+            <h1>Earth Engine Analysis Console</h1>
+            <p>
+                District-level indicators for Maharashtra built from Landsat, Sentinel-2 and VIIRS
+                image collections — thermal, water, vegetation, night-lights and land cover, each
+                published as its own Earth Engine App.
+            </p>
+        </div>
+    </div>
+
+    <!-- ============ LAYERS PANEL (table of contents) ============ -->
+    <div class="layers-panel">
+        <div class="layers-title">LAYERS · JUMP TO A LAYER</div>
+        <ul class="layers-list">
+            <li><a href="#lst" style="--accent:#fb7a4c"><span class="layer-toggle" style="--accent:#fb7a4c"></span>Land Surface Temperature Mapping<span class="layer-band">TIRS</span></a></li>
+            <li><a href="#water" style="--accent:#38bdf8"><span class="layer-toggle" style="--accent:#38bdf8"></span>Waterbody Monitoring<span class="layer-band">JRC / MSI</span></a></li>
+            <li><a href="#vegetation" style="--accent:#3ddc97"><span class="layer-toggle" style="--accent:#3ddc97"></span>Vegetation Monitoring<span class="layer-band">NDVI</span></a></li>
+            <li><a href="#ntl" style="--accent:#fbbf24"><span class="layer-toggle" style="--accent:#fbbf24"></span>Nighttime Light Visualization<span class="layer-band">VIIRS DNB</span></a></li>
+            <li><a href="#lulc" style="--accent:#c084fc"><span class="layer-toggle" style="--accent:#c084fc"></span>Land Use / Land Cover<span class="layer-band">RF classifier</span></a></li>
+        </ul>
+    </div>
+
+    <!-- ============ TOPIC 1: LST ============ -->
+    <div class="topic-block" id="lst" style="--accent:#fb7a4c">
+        <div class="topic-head">
+            <div class="eyebrow">Thermal · Landsat 8/9 TIRS</div>
+            <h2>Land Surface Temperature Mapping</h2>
+            <p>
+                District-level LST derived from Landsat thermal bands, flagging urban heat islands
+                across Maharashtra's fastest-growing built-up districts against the surrounding
+                cropland baseline.
+            </p>
+        </div>
+        <div class="preview-window">
+            <div class="preview-chrome">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <div class="preview-url">mh-geo.users.earthengine.app/view/lst-mapping</div>
+            </div>
+            <!-- Replace this div with an <iframe> pointing at your published Earth Engine App -->
+            <div class="preview-frame raster-lst">
+                <img src="https://github.com/saraswatichatterjee/GEE_Portfolio/blob/main/LST/Rajasthan_LST.png?raw=true" alt="Land Surface Temperature map">
+                <div class="legend-bar">
+                    <div class="legend-ramp" style="background: linear-gradient(90deg, #38bdf8, #3ddc97, #fbbf24, #fb7a4c, #ef4444);"></div>
+                    <div class="legend-labels"><span>18 °C</span><span>surface temperature</span><span>44 °C</span></div>
+                </div>
+            </div>
+        </div>
+        <a class="preview-link" href="#" target="_blank" rel="noopener">
+            Open in Earth Engine
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+    </div>
+
+    <!-- ============ TOPIC 2: Water ============ -->
+    <div class="topic-block" id="water" style="--accent:#38bdf8">
+        <div class="topic-head">
+            <div class="eyebrow">Surface Water · JRC / Sentinel-2 MSI</div>
+            <h2>Waterbody Monitoring</h2>
+            <p>
+                Multi-year surface water occurrence mapped from the JRC Global Surface Water dataset,
+                tracking reservoir and tank extent across district watersheds to flag seasonal shrinkage.
+            </p>
+        </div>
+        <div class="preview-window">
+            <div class="preview-chrome">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <div class="preview-url">mh-geo.users.earthengine.app/view/waterbody-monitoring</div>
+            </div>
+            <!-- Replace this div with an <iframe> pointing at your published Earth Engine App -->
+            <div class="preview-frame raster-water">
+                <img src="https://github.com/saraswatichatterjee/GEE_Portfolio/blob/main/WaterBody/Waterbody_Monitoring.png?raw=true" alt="Land Use / Land Cover classification result rendered in the Google Earth Engine code editor">
+                
+                </div>
+            </div>
+        </div>
+        <a class="preview-link" href="#" target="_blank" rel="noopener">
+            Open in Earth Engine
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+    </div>
+
+    <!-- ============ TOPIC 3: Vegetation ============ -->
+    <div class="topic-block" id="vegetation" style="--accent:#3ddc97">
+        <div class="topic-head">
+            <div class="eyebrow">NDVI · Sentinel-2 MSI</div>
+            <h2>Vegetation Monitoring</h2>
+            <p>
+                NDVI time-series composited from Sentinel-2 to track cropland vigor and green-cover
+                change alongside the built-up growth layer in the main dashboard.
+            </p>
+        </div>
+        <div class="preview-window">
+            <div class="preview-chrome">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <div class="preview-url">mh-geo.users.earthengine.app/view/vegetation-monitoring</div>
+            </div>
+            <!-- Replace this div with an <iframe> pointing at your published Earth Engine App -->
+            <div class="preview-frame raster-veg">
+                 <img src="gee-lulc-preview.png" alt="Land Use / Land Cover classification result rendered in the Google Earth Engine code editor">
+                <div class="legend-bar">
+                    <div class="legend-ramp" style="background: linear-gradient(90deg, #92400e, #ca8a04, #a3e635, #16a34a, #14532d);"></div>
+                    <div class="legend-labels"><span>-0.2</span><span>NDVI, kharif composite</span><span>0.9</span></div>
+                </div>
+            </div>
+        </div>
+        <a class="preview-link" href="#" target="_blank" rel="noopener">
+            Open in Earth Engine
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+    </div>
+
+    <!-- ============ TOPIC 4: Nighttime Lights ============ -->
+    <div class="topic-block" id="ntl" style="--accent:#fbbf24">
+        <div class="topic-head">
+            <div class="eyebrow">Radiance · VIIRS DNB</div>
+            <h2>Nighttime Light Visualization</h2>
+            <p>
+                Annual VIIRS night-lights composites used as a proxy for economic activity, cross-referenced
+                with built-up area change to build the composite urban growth index.
+            </p>
+        </div>
+        <div class="preview-window">
+            <div class="preview-chrome">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <div class="preview-url">mh-geo.users.earthengine.app/view/nighttime-lights</div>
+            </div>
+            <!-- Replace this div with an <iframe> pointing at your published Earth Engine App -->
+            <div class="preview-frame raster-ntl">
+                 <img src="https://github.com/saraswatichatterjee/GEE_Portfolio/blob/main/NTL/Japan_NTL.png?raw=true" alt="Land Use / Land Cover classification result rendered in the Google Earth Engine code editor">
+                <div class="legend-bar">
+                    <div class="legend-ramp" style="background: linear-gradient(90deg, #050505, #78350f, #f59e0b, #fde047);"></div>
+                    <div class="legend-labels"><span>0</span><span>radiance, annual composite</span><span>60 nW</span></div>
+                </div>
+            </div>
+        </div>
+        <a class="preview-link" href="#" target="_blank" rel="noopener">
+            Open in Earth Engine
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+    </div>
+
+    <!-- ============ TOPIC 5: LULC ============ -->
+    <div class="topic-block" id="lulc" style="--accent:#c084fc">
+        <div class="topic-head">
+            <div class="eyebrow">Classification · Random Forest, Sentinel-2</div>
+            <h2>Land Use / Land Cover</h2>
+            <p>
+                Supervised classification separating built-up, cropland, forest, water and fallow land —
+                the base layer the other four indicators are compared against.
+            </p>
+        </div>
+        <div class="preview-window">
+            <div class="preview-chrome">
+                <span class="dot r"></span><span class="dot y"></span><span class="dot g"></span>
+                <div class="preview-url">https://code.earthengine.google.com/420a5fd72c4f55c7a160c6bcccd46a78</div>
+            </div>
+            <div class="preview-frame lulc-shot">
+                <img src="https://github.com/saraswatichatterjee/GEE_Portfolio/blob/LULC/Screenshot%202026-09-04%20213638.png?raw=true" alt="Land Use / Land Cover classification result rendered in the Google Earth Engine code editor">
+            </div>
+        </div>
+        <a class="preview-link" href="https://code.earthengine.google.com/420a5fd72c4f55c7a160c6bcccd46a78" target="_blank" rel="noopener">
+            Open in Earth Engine
+            <svg viewBox="0 0 24 24" fill="none" stroke="currentColor" stroke-width="2"><path d="M7 17L17 7M17 7H9M17 7V15"/></svg>
+        </a>
+    </div>
+
+</div>
+
+</body>
+</html>
